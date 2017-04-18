@@ -1,8 +1,9 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Router {
     private int routerId; // router Id
-    private ArrayList<ArrayList<Integer>> dvectors; //Distance Vector Table
+    private DVTable dvtable; //Distance Vector Table
     private ArrayList<Router> adjacentRouter; // Adjacent Routers
     private boolean isConverge;
 
@@ -13,7 +14,7 @@ public class Router {
     public Router(int id) {
         isConverge = false;
         routerId = id;
-        dvectors = new ArrayList<>();
+        dvtable = new DVTable();
         adjacentRouter = new ArrayList<>();
     }
 
@@ -38,7 +39,7 @@ public class Router {
      */
     public void Advertise() {
         for(Router r : adjacentRouter) {
-            r.AddDVector(routerId,dvectors.get(routerId));
+            r.AddDVector(routerId,dvtable.GetDVector(routerId));
         }
     }
 
@@ -48,39 +49,22 @@ public class Router {
      * @param id
      * @param dvector
      */
-    public void AddDVector(int id, ArrayList<Integer>dvector) {
-        dvectors.set(id,dvector);
+    public void AddDVector(int id, HashMap<Integer,DVCell> dvector) {
+        dvtable.AddDVector(id,dvector);
     }
-
-    /**
-     * Set/Update the link cost between 2 routers
-     * @param id
-     * @param cost
-     */
-    public void SetLinkCost(int id, int cost) {
-        dvectors.get(routerId).set(id,cost);
-        dvectors.get(id).set(routerId,cost);
-    }
-
-    /**
-     * Get the link cost between 2 routers
-     * @param id
-     * @return
-     */
-    public int GetLinkCost(int id) {
-        return dvectors.get(routerId).get(id);
-    }
-
     /**
      * Add an adjacent router
-     * @param router
+     * @param r
      * @param cost
      */
-    public void AddAdjacentRouter(Router router, int cost) {
-        adjacentRouter.add(router);
-        SetLinkCost(router.GetId(),cost);
+    public void AddAdjacentRouter(Router r, int cost) {
+        adjacentRouter.add(r);
+        dvtable.SetCell(routerId,r.GetId(),new DVCell(r.GetId(),1,cost));
     }
 
+    public int GetLinkCost(int id) {
+        return dvtable.GetCell(routerId,id).GetCost();
+    }
     /**
      * Update the DV
      */
@@ -89,29 +73,33 @@ public class Router {
         if(isConverge) {
             return;
         }
-        ArrayList<Integer> dvector = dvectors.get(routerId);
+        HashMap<Integer,DVCell> dvector = dvtable.GetDVector(routerId);
         boolean isUpdate = false;
         //Find the least cost path to any router in the network
-        for(int i = 0; i< dvector.size(); i++) {
-            if(i!= routerId) {
-                int min = 0;
+        for(Integer i : dvector.keySet()) {
+            if(i == routerId) {
+                dvector.get(i).SetCost(0);
+                dvector.get(i).SetNextHop(i);
+                dvector.get(i).SetHops(0);
+            } else {
+                int min = dvector.get(i).GetCost();
+                Router nextHop = this;
                 for(Router r : adjacentRouter) {
-                    int cost = dvector.get(r.GetId()) + r.GetLinkCost(i);
+                    int cost = dvector.get(r.GetId()).GetCost() + dvtable.GetCell(r.GetId(),i).GetCost();
                     if(min < cost) {
                         min = cost;
+                        nextHop = r;
                     }
                 }
                 // If the link cost is different, update it
-                if(dvector.get(i) != min) {
-                    dvector.set(i, min);
+                if(dvector.get(i).GetCost() != min) {
+                    dvector.get(i).SetCost(min);
+                    dvector.get(i).SetNextHop(nextHop.GetId());
+                    dvector.get(i).SetHops(dvtable.GetCell(nextHop.GetId(),i).GetHops());
                     isUpdate = true;
                 }
-            } else {
-                dvector.set(i,0); // set the link cost to itself to 0
             }
         }
-        //Update the DV
-        dvectors.set(routerId,dvector);
         //If nothing change then the DV table is converged
         isConverge = !isUpdate;
     }
