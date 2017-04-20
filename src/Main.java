@@ -97,7 +97,7 @@ public class Main {
             System.out.println("Update DVTable");
             for (Router r : network.values()) {
                 r.UpdateDateDVector();
-                //r.PrintDVector();
+//                r.PrintDVector();
                 if (!r.IsConverge()) {
                     flag = false;
                 }

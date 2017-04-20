@@ -140,25 +140,38 @@ public class Router {
             if(i != routerId) {
                 int min = dvector.get(i).GetCost();
                 Router nextHop = this;
+                int dvcost;
                 for(Router r : adjacentRouter) {
-                    int dvcost;
                     if(dvector.get(r.GetId()).GetCost() >= 0 &&
                             dvtable.GetCell(r.GetId(),i).GetDV() >= 0) {
                         dvcost = dvector.get(r.GetId()).GetCost() + dvtable.GetCell(r.GetId(), i).GetDV();
                     } else {
                         dvcost = -1;
                     }
-                    if(min < 0 || (min > dvcost && dvcost > 0)) {
+                    if(min < 0 || (min >= dvcost && dvcost > 0)) {
                         min = dvcost;
                         nextHop = r;
                     }
-                }
+                                    }
                 // If the dv cost is different, update it
                 if(dvector.get(i).GetDV() != min) {
                     dvector.get(i).SetDV(min);
-                    dvector.get(i).SetNextHop(nextHop.GetId());
-                    dvector.get(i).SetHops(dvector.get(nextHop.GetId()).GetHops() +
-                            dvtable.GetCell(nextHop.GetId(),i).GetHops());
+                    if(nextHop != this) {
+                        dvector.get(i).SetNextHop(nextHop.GetId());
+                        int hops = 0;
+                        int id = routerId;
+                        int nid;
+                        while(id != i) {
+                            hops++;
+                            nid = dvtable.GetCell(id,i).GetNextHop();
+                            if(nid != i && id == dvtable.GetCell(nid,i).GetNextHop()) {
+                                hops = -1;
+                                break;
+                            }
+                            id = nid;
+                        }
+                        dvector.get(i).SetHops(hops);
+                    }
                     isUpdate = true;
                 }
             }
