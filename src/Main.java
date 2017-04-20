@@ -9,6 +9,7 @@ public class Main {
         BufferedReader f = new BufferedReader(new FileReader(args[0]));
         String str;
         int totalRouters = 0;
+        int convergeDelay = 0;
         HashMap<Integer,Router> network = new HashMap<>();
         HashMap<Integer,String> events = new HashMap<>();
         while((str = f.readLine()) != null) {
@@ -45,20 +46,25 @@ public class Main {
 
         int round = 1;
         boolean isConverge = false;
+        boolean cti = false;
         while(true) {
             boolean flag = true;
             System.out.println("Start Round " + round + ":");
-
+            convergeDelay++;
             //If there's no event and the DVTable is converged, stop the program
             if(isConverge && events.isEmpty()) {
                 System.out.println("All events are completed! The routing table is converged");
+                System.out.println("Convergent Delay: " + convergeDelay);
+                break;
+            } else if(cti){
+                System.out.println("Count To Infinity Problem Encountered");
                 break;
             }
             //Advertise
             if(!isConverge){
                 System.out.println("Advertise");
                 for (Router r : network.values()) {
-                    r.Advertise(2);
+                    r.Advertise(3);
                 }
             }
 //            for (Router r : network.values()) {
@@ -67,6 +73,7 @@ public class Main {
 
             //Check for any event
             if(events.containsKey(round)) {
+                convergeDelay = 0;
                 System.out.println("EVENT! Cost change happen");
                 String[] tokens = events.get(round).split(" ");
                 int rid1 = Integer.parseInt(tokens[0]);
@@ -100,6 +107,8 @@ public class Main {
 //                r.PrintDVector();
                 if (!r.IsConverge()) {
                     flag = false;
+                } else if (r.IsCTI()){
+                    cti = true;
                 }
             }
             isConverge = flag;

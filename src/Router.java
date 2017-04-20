@@ -6,13 +6,14 @@ public class Router {
     private DVTable dvtable; //Distance Vector Table
     private ArrayList<Router> adjacentRouter; // Adjacent Routers
     private boolean isConverge;
-
+    private boolean cti;
     /**
      * Constructor
      * @param id
      */
     public Router(int id) {
         isConverge = false;
+        cti = false;
         routerId = id;
         dvtable = new DVTable();
         adjacentRouter = new ArrayList<>();
@@ -25,7 +26,9 @@ public class Router {
     public boolean IsConverge(){
         return isConverge;
     }
-
+    public boolean IsCTI(){
+        return cti;
+    }
     /**
      * Get Router ID
      * @return
@@ -187,6 +190,9 @@ public class Router {
                 // If the dv cost is different, update it
                 if(dvector.get(i).GetDV() != min) {
                     dvector.get(i).SetDV(min);
+                    if(min > 100) {
+                        cti = true;
+                    }
                     if(nextHop != this) {
                         dvector.get(i).SetNextHop(nextHop.GetId());
                         int hops = 0;
