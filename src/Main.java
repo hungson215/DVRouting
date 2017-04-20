@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
@@ -12,7 +13,7 @@ public class Main {
         int method = 1;
         int detail = Integer.parseInt(args[2]);
         HashMap<Integer,Router> network = new HashMap<>();
-        HashMap<Integer,String> events = new HashMap<>();
+        HashMap<Integer,ArrayList<String>> events = new HashMap<>();
         while((str = f.readLine()) != null) {
             if(totalRouters == 0) {
                 totalRouters = Integer.parseInt(str);
@@ -42,7 +43,16 @@ public class Main {
         f = new BufferedReader(new FileReader(args[1]));
         while((str = f.readLine()) != null) {
             int i = str.indexOf(' ');
-            events.put(Integer.parseInt(str.substring(0,i)), str.substring(i+1));
+            ArrayList<String> eList;
+            int index = Integer.parseInt(str.substring(0,i));
+            if(events.containsKey(index)) {
+                eList = events.get(index);
+                eList.add(str.substring(i+1));
+            } else {
+                eList = new ArrayList<>();
+                eList.add(str.substring(i+1));
+                events.put(index,eList);
+            }
         }
 
         int round = 1;
@@ -85,25 +95,28 @@ public class Main {
             //Check for any event
             if(events.containsKey(round)) {
                 convergeDelay = 0;
-                System.out.println("EVENT! Cost change happen");
-                String[] tokens = events.get(round).split(" ");
-                int rid1 = Integer.parseInt(tokens[0]);
-                int rid2 = Integer.parseInt(tokens[1]);
-                int cost = Integer.parseInt(tokens[2]);
-                Router r1 = network.get(rid1);
-                Router r2 = network.get(rid2);
-                //Add new link
-                if(r1.GetLinkCost(rid2) < 0 && cost > 0) {
-                    r1.AddAdjacentRouter(r2,cost);
-                    r2.AddAdjacentRouter(r1,cost);
-                    //Remove a link
-                } else if (cost < 0) {
-                    r1.RemoveAdjacentRouter(r2);
-                    r2.RemoveAdjacentRouter(r1);
-                    //Change link cost
-                } else {
-                    r1.SetLinkCost(rid2, cost);
-                    r2.SetLinkCost(rid1, cost);
+                for(String event : events.get(round)) {
+                    System.out.println("EVENT! Cost change happen");
+                    String[] tokens = event.split(" ");
+                    int rid1 = Integer.parseInt(tokens[0]);
+                    int rid2 = Integer.parseInt(tokens[1]);
+                    int cost = Integer.parseInt(tokens[2]);
+                    System.out.println("New cost: " + rid1 +" -> " +rid2+": " +cost);
+                    Router r1 = network.get(rid1);
+                    Router r2 = network.get(rid2);
+                    //Add new link
+                    if (r1.GetLinkCost(rid2) < 0 && cost > 0) {
+                        r1.AddAdjacentRouter(r2, cost);
+                        r2.AddAdjacentRouter(r1, cost);
+                        //Remove a link
+                    } else if (cost < 0) {
+                        r1.RemoveAdjacentRouter(r2);
+                        r2.RemoveAdjacentRouter(r1);
+                        //Change link cost
+                    } else {
+                        r1.SetLinkCost(rid2, cost);
+                        r2.SetLinkCost(rid1, cost);
+                    }
                 }
                 events.remove(round);
             } else if (isConverge) {
