@@ -65,6 +65,52 @@ public class Router {
     public int GetLinkCost(int id) {
         return dvtable.GetCell(routerId,id).GetCost();
     }
+    public void SetLinkCost(int id, int cost) {
+        if(cost == -1) {
+            dvtable.GetCell(routerId,id).SetNextHop(0);
+            dvtable.GetCell(routerId,id).SetHops(0);
+        }
+        dvtable.GetCell(routerId,id).SetCost(cost);
+        isConverge = false;
+    }
+    public void RemoveAdjacentRouter(Router r) {
+        if(adjacentRouter.contains(r)) {
+            adjacentRouter.remove(r);
+            r.SetLinkCost(routerId, -1);
+            SetLinkCost(r.GetId(), -1);
+        }
+    }
+    public DVCell GetCell(int id) {
+        return dvtable.GetCell(routerId,id);
+    }
+    public void PrintDVector(){
+        System.out.println("DVector of Router " + routerId + " :");
+        HashMap<Integer,DVCell> dvector = dvtable.GetDVector(routerId);
+        for(Integer i : dvector.keySet()) {
+            System.out.print("   |   " + i + "           ");
+        }
+        System.out.println();
+        for(Integer i : dvector.keySet()) {
+            System.out.print("   | Cost: ");
+            if(dvector.get(i).GetCost() < 0) {
+                System.out.print("INFINITY");
+            } else {
+                System.out.print(dvector.get(i).GetCost());
+                System.out.print("       ");
+            }
+        }
+        System.out.println();
+        for(Integer i : dvtable.GetDVector(routerId).keySet()) {
+            System.out.print("   | NextHop: " + dvtable.GetCell(routerId,i).GetNextHop());
+            System.out.print("    ");
+        }
+        System.out.println();
+        for(Integer i : dvtable.GetDVector(routerId).keySet()) {
+            System.out.print("   | Hops: "+ dvtable.GetCell(routerId,i).GetHops());
+            System.out.print("       ");
+        }
+        System.out.println();
+    }
     /**
      * Update the DV
      */
@@ -85,8 +131,14 @@ public class Router {
                 int min = dvector.get(i).GetCost();
                 Router nextHop = this;
                 for(Router r : adjacentRouter) {
-                    int cost = dvector.get(r.GetId()).GetCost() + dvtable.GetCell(r.GetId(),i).GetCost();
-                    if(min < cost) {
+                    int cost;
+                    if(dvector.get(r.GetId()).GetCost() >= 0 &&
+                            dvtable.GetCell(r.GetId(),i).GetCost() >= 0) {
+                        cost = dvector.get(r.GetId()).GetCost() + dvtable.GetCell(r.GetId(), i).GetCost();
+                    } else {
+                        cost = -1;
+                    }
+                    if(min < 0 || (min > cost && cost > 0)) {
                         min = cost;
                         nextHop = r;
                     }
@@ -95,12 +147,15 @@ public class Router {
                 if(dvector.get(i).GetCost() != min) {
                     dvector.get(i).SetCost(min);
                     dvector.get(i).SetNextHop(nextHop.GetId());
-                    dvector.get(i).SetHops(dvtable.GetCell(nextHop.GetId(),i).GetHops());
+                    dvector.get(i).SetHops(dvector.get(nextHop.GetId()).GetHops() +
+                            dvtable.GetCell(nextHop.GetId(),i).GetHops());
                     isUpdate = true;
                 }
             }
         }
         //If nothing change then the DV table is converged
-        isConverge = !isUpdate;
+        if(!isUpdate) {
+            isConverge = true;
+        }
     }
 }

@@ -83,8 +83,8 @@ public class DVCell {
     /**
      * Default constructor
      */
-    public DVCell(){
-        cost = Integer.MAX_VALUE;
+    public DVCell() {
+        cost = -1;
         nexthop = 0;
         hops = 0;
     }

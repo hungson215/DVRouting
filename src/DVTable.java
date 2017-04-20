@@ -1,5 +1,4 @@
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by David Nguyen on 4/13/2017.
@@ -7,31 +6,48 @@ import java.util.Map;
 public class DVTable {
     private HashMap<Integer,HashMap<Integer,DVCell>> dvtable;
 
+    public DVTable(){
+        dvtable = new HashMap<>();
+    }
     public void SetCell(int rowid,int colid, DVCell cell) {
-        //If rowid does not exist, add a new entry to the map
-        if(!dvtable.containsKey(rowid)) {
-            //Add the new row to the table
-            HashMap<Integer,DVCell> newrow = new HashMap<>();
-            dvtable.put(rowid,newrow);
-            //Populate the entries of the new row
-            for(Integer key: dvtable.keySet()) {
-                newrow.put(key,new DVCell());
-                dvtable.get(key).put(rowid,new DVCell());
+        if(rowid != colid) {
+            //If rowid does not exist, add a new entry to the map
+            if (!dvtable.containsKey(rowid)) {
+                //Add the new row to the table
+                HashMap<Integer, DVCell> newrow = new HashMap<>();
+                dvtable.put(rowid, newrow);
+                //Populate the entries of the new row
+                for (Integer key : dvtable.keySet()) {
+                    newrow.put(key, new DVCell());
+                    if(key != rowid) {
+                        dvtable.get(key).put(rowid, new DVCell());
+                    } else {
+                        dvtable.get(key).put(rowid, new DVCell(key,0,0));
+                    }
+                }
             }
-        }
-        //If colid does not exist, add a new entry to the map
-        if(!dvtable.get(rowid).containsKey(colid)) {
-            HashMap<Integer,DVCell> newrow = new HashMap<>();
-            dvtable.put(colid,newrow);
-            //Populate the entries of the new row
-            for(Integer key: dvtable.keySet()) {
-                newrow.put(key,new DVCell());
-                dvtable.get(key).put(colid,new DVCell());
+            //If colid does not exist, add a new entry to the map
+            if (!dvtable.get(rowid).containsKey(colid)) {
+                HashMap<Integer, DVCell> newrow = new HashMap<>();
+                dvtable.put(colid, newrow);
+                //Populate the entries of the new row
+                for (Integer key : dvtable.keySet()) {
+                    newrow.put(key, new DVCell());
+                    if(key!= colid) {
+                        dvtable.get(key).put(colid, new DVCell());
+                    } else {
+                        dvtable.get(key).put(colid, new DVCell(key,0,0));
+                    }
+                }
             }
+            dvtable.get(rowid).get(colid).SetCost(cell.GetCost());
+            dvtable.get(rowid).get(colid).SetNextHop(cell.GetNextHop());
+            dvtable.get(rowid).get(colid).SetHops(cell.GetHops());
+        } else {
+            dvtable.get(rowid).get(colid).SetCost(cell.GetCost());
+            dvtable.get(rowid).get(colid).SetNextHop(cell.GetNextHop());
+            dvtable.get(rowid).get(colid).SetHops(cell.GetHops());
         }
-        dvtable.get(rowid).get(colid).SetCost(cell.GetCost());
-        dvtable.get(rowid).get(colid).SetNextHop(cell.GetNextHop());
-        dvtable.get(rowid).get(colid).SetHops(cell.GetHops());
     }
 
     /**
