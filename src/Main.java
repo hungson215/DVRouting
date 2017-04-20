@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Main {
-
     public static void main(String[] args) throws IOException{
         BufferedReader f = new BufferedReader(new FileReader(args[0]));
         String str;
         int totalRouters = 0;
         int convergeDelay = 0;
+        int method = 1;
+        int detail = Integer.parseInt(args[2]);
         HashMap<Integer,Router> network = new HashMap<>();
         HashMap<Integer,String> events = new HashMap<>();
         while((str = f.readLine()) != null) {
@@ -47,6 +48,14 @@ public class Main {
         int round = 1;
         boolean isConverge = false;
         boolean cti = false;
+        System.out.print("Method used: ");
+        if(method == 1) {
+            System.out.println("Split Horizon");
+        } else if(method == 2){
+            System.out.println("Split Horizon with poison reverse");
+        } else {
+            System.out.println("Basic");
+        }
         while(true) {
             boolean flag = true;
             System.out.println("Start Round " + round + ":");
@@ -54,7 +63,7 @@ public class Main {
             //If there's no event and the DVTable is converged, stop the program
             if(isConverge && events.isEmpty()) {
                 System.out.println("All events are completed! The routing table is converged");
-                System.out.println("Convergent Delay: " + convergeDelay);
+                System.out.println("Convergence Delay: " + convergeDelay + " rounds");
                 break;
             } else if(cti){
                 System.out.println("Count To Infinity Problem Encountered");
@@ -64,12 +73,14 @@ public class Main {
             if(!isConverge){
                 System.out.println("Advertise");
                 for (Router r : network.values()) {
-                    r.Advertise(3);
+                    r.Advertise(method);
                 }
             }
-//            for (Router r : network.values()) {
-//                r.PrintDVector();
-//            }
+            if(detail == 1) {
+                for(Router r: network.values()) {
+                    r.PrintDVTable();
+                }
+            }
 
             //Check for any event
             if(events.containsKey(round)) {
@@ -104,7 +115,9 @@ public class Main {
             System.out.println("Update DVTable");
             for (Router r : network.values()) {
                 r.UpdateDateDVector();
-//                r.PrintDVector();
+                if(detail == 1 ) {
+                    r.PrintDVTable();
+                }
                 if (!r.IsConverge()) {
                     flag = false;
                 } else if (r.IsCTI()){
@@ -116,7 +129,7 @@ public class Main {
         }
         //Print DVTable after finishing
         for(Router r: network.values()) {
-            r.PrintDVector();
+            r.PrintDVTable();
         }
     }
 }

@@ -121,43 +121,9 @@ public class Router {
     public DVCell GetCell(int id) {
         return dvtable.GetCell(routerId,id);
     }
-    public void PrintDVector(){
-        System.out.println("DVector of Router " + routerId + " :");
-        HashMap<Integer,DVCell> dvector = dvtable.GetDVector(routerId);
-        for(Integer i : dvector.keySet()) {
-            System.out.print("   |   " + i + "           ");
-        }
-        System.out.println();
-        for(Integer i : dvector.keySet()) {
-            System.out.print("   | Cost: ");
-            if(dvector.get(i).GetCost() < 0) {
-                System.out.print("INFINITY");
-            } else {
-                System.out.print(dvector.get(i).GetCost());
-                System.out.print("       ");
-            }
-        }
-        System.out.println();
-        for(Integer i : dvtable.GetDVector(routerId).keySet()) {
-            System.out.print("   | DV: ");
-            if(dvector.get(i).GetDV() < 0) {
-                System.out.print("INFINITY");
-            } else {
-                System.out.print(dvector.get(i).GetDV());
-                System.out.print("       ");
-            }
-        }
-        System.out.println();
-        for(Integer i : dvtable.GetDVector(routerId).keySet()) {
-            System.out.print("   | NextHop: " + dvtable.GetCell(routerId,i).GetNextHop());
-            System.out.print("    ");
-        }
-        System.out.println();
-        for(Integer i : dvtable.GetDVector(routerId).keySet()) {
-            System.out.print("   | Hops: "+ dvtable.GetCell(routerId,i).GetHops());
-            System.out.print("       ");
-        }
-        System.out.println();
+    public void PrintDVTable(){
+        System.out.println("DVTable of Router " + routerId + " :");
+        dvtable.PrintTable();
     }
     /**
      * Update the DV
