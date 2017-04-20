@@ -3,12 +3,7 @@ public class DVCell {
     private int hops;
     private int cost;
     private int nexthop;
-
-    public void SetDVCell(int nexthop, int hops, int cost) {
-        this.hops = hops;
-        this.cost = cost;
-        this.nexthop = nexthop;
-    }
+    private int dv;
 
     /**
      * Set Hops
@@ -64,10 +59,11 @@ public class DVCell {
      * @param hops
      * @param cost
      */
-    public DVCell (int nexthop, int hops, int cost) {
+    public DVCell (int nexthop, int hops, int cost, int dv) {
         this.cost = cost;
         this.nexthop = nexthop;
         this.hops = hops;
+        this.dv = dv;
     }
 
     /**
@@ -78,8 +74,14 @@ public class DVCell {
         this.cost = cell.GetCost();
         this.nexthop = cell.GetNextHop();
         this.hops = cell.GetHops();
+        this.dv = cell.GetDV();
     }
-
+    public int GetDV(){
+        return dv;
+    }
+    public void SetDV(int dv) {
+        this.dv = dv;
+    }
     /**
      * Default constructor
      */
@@ -87,5 +89,6 @@ public class DVCell {
         cost = -1;
         nexthop = 0;
         hops = 0;
+        dv = -1;
     }
 }

@@ -22,7 +22,7 @@ public class DVTable {
                     if(key != rowid) {
                         dvtable.get(key).put(rowid, new DVCell());
                     } else {
-                        dvtable.get(key).put(rowid, new DVCell(key,0,0));
+                        dvtable.get(key).put(rowid, new DVCell(key,0,0,0));
                     }
                 }
             }
@@ -36,18 +36,15 @@ public class DVTable {
                     if(key!= colid) {
                         dvtable.get(key).put(colid, new DVCell());
                     } else {
-                        dvtable.get(key).put(colid, new DVCell(key,0,0));
+                        dvtable.get(key).put(colid, new DVCell(key,0,0, 0));
                     }
                 }
             }
-            dvtable.get(rowid).get(colid).SetCost(cell.GetCost());
-            dvtable.get(rowid).get(colid).SetNextHop(cell.GetNextHop());
-            dvtable.get(rowid).get(colid).SetHops(cell.GetHops());
-        } else {
-            dvtable.get(rowid).get(colid).SetCost(cell.GetCost());
-            dvtable.get(rowid).get(colid).SetNextHop(cell.GetNextHop());
-            dvtable.get(rowid).get(colid).SetHops(cell.GetHops());
         }
+        dvtable.get(rowid).get(colid).SetCost(cell.GetCost());
+        dvtable.get(rowid).get(colid).SetNextHop(cell.GetNextHop());
+        dvtable.get(rowid).get(colid).SetHops(cell.GetHops());
+        dvtable.get(rowid).get(colid).SetDV(cell.GetDV());
     }
 
     /**

@@ -45,18 +45,27 @@ public class Main {
 
         int round = 1;
         boolean isConverge = false;
-        int cti = round;
-        boolean badvertise = false;
-        boolean bupdate = true;
         while(true) {
             boolean flag = true;
+            System.out.println("Start Round " + round + ":");
+
+            //If there's no event and the DVTable is converged, stop the program
             if(isConverge && events.isEmpty()) {
                 System.out.println("All events are completed! The routing table is converged");
                 break;
-            } else if((round - cti) > 100) {
-                System.out.println("Count to infinity problem");
-                break;
             }
+            //Advertise
+            if(!isConverge){
+                System.out.println("Advertise");
+                for (Router r : network.values()) {
+                    r.Advertise();
+                }
+            }
+            //for (Router r : network.values()) {
+            //    r.PrintDVector();
+            //}
+
+            //Check for any event
             if(events.containsKey(round)) {
                 System.out.println("EVENT! Cost change happen");
                 String[] tokens = events.get(round).split(" ");
@@ -69,50 +78,34 @@ public class Main {
                 if(r1.GetLinkCost(rid2) < 0 && cost > 0) {
                     r1.AddAdjacentRouter(r2,cost);
                     r2.AddAdjacentRouter(r1,cost);
-                //Remove a link
+                    //Remove a link
                 } else if (cost < 0) {
                     r1.RemoveAdjacentRouter(r2);
                     r2.RemoveAdjacentRouter(r1);
-                //Change link cost
+                    //Change link cost
                 } else {
                     r1.SetLinkCost(rid2, cost);
                     r2.SetLinkCost(rid1, cost);
                 }
                 events.remove(round);
-                cti = round;
-                bupdate = true;
-                badvertise = false;
             } else if (isConverge) {
-                System.out.println("Round " + round + ": Routing table is converged");
+                System.out.println("Routing table is converged");
                 round++;
-                cti = round;
                 continue;
-            } else {
-                badvertise = !badvertise;
-                bupdate = !bupdate;
             }
-            if(badvertise) {
-                System.out.println("Round " + round + ": Advertise");
-                for (Router r : network.values()) {
-                    if (!r.IsConverge()) {
-                        r.Advertise();
-                    }
+            //Update DVTable
+            System.out.println("Update DVTable");
+            for (Router r : network.values()) {
+                r.UpdateDateDVector();
+                //r.PrintDVector();
+                if (!r.IsConverge()) {
+                    flag = false;
                 }
-                round++;
             }
-            if(bupdate) {
-                System.out.println("Round " + round + ": Update DVTable");
-                for (Router r : network.values()) {
-                    r.UpdateDateDVector();
-                    //r.PrintDVector();
-                    if (!r.IsConverge()) {
-                        flag = false;
-                    }
-                }
-                isConverge = flag;
-                round++;
-            }
+            isConverge = flag;
+            round++;
         }
+        //Print DVTable after finishing
         for(Router r: network.values()) {
             r.PrintDVector();
         }
