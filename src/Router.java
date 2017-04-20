@@ -37,12 +37,43 @@ public class Router {
     /**
      * Advertise Distance Vector to all adjacent Routers
      */
-    public void Advertise() {
-        if(!isConverge) {
-            for (Router r : adjacentRouter) {
-                r.AddDVector(routerId, dvtable.GetDVector(routerId));
-            }
+    public void Advertise(int method) {
+        HashMap<Integer,DVCell> dvector;
+        if(isConverge) {
+            return;
         }
+        switch (method) {
+            case 1:
+                dvector = dvtable.GetDVector(routerId);
+                for(Router r : adjacentRouter) {
+                    HashMap<Integer, DVCell> newdvector = new HashMap<>();
+                    for (Integer i : dvector.keySet()) {
+                        if (dvector.get(i).GetNextHop() != r.GetId()) {
+                            newdvector.put(i, dvector.get(i));
+                        }
+                    }
+                    r.AddDVector(routerId,newdvector);
+                }
+                break;
+            case 2:
+                dvector = dvtable.GetDVector(routerId);
+                for(Router r : adjacentRouter) {
+                    HashMap<Integer, DVCell> newdvector = new HashMap<>();
+                    for (Integer i : dvector.keySet()) {
+                        newdvector.put(i, new DVCell(dvector.get(i)));
+                        if (dvector.get(i).GetNextHop() == r.GetId()) {
+                            newdvector.get(i).SetDV(-1);
+                        }
+                    }
+                    r.AddDVector(routerId,newdvector);
+                }
+                break;
+            default:
+                for (Router r : adjacentRouter) {
+                    r.AddDVector(routerId, dvtable.GetDVector(routerId));
+                }
+        }
+
     }
 
     /**

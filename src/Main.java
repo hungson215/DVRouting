@@ -58,12 +58,12 @@ public class Main {
             if(!isConverge){
                 System.out.println("Advertise");
                 for (Router r : network.values()) {
-                    r.Advertise();
+                    r.Advertise(2);
                 }
             }
-            //for (Router r : network.values()) {
-            //    r.PrintDVector();
-            //}
+//            for (Router r : network.values()) {
+//                r.PrintDVector();
+//            }
 
             //Check for any event
             if(events.containsKey(round)) {
