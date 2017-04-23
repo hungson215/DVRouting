@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException{
@@ -10,7 +11,7 @@ public class Main {
         String str;
         int totalRouters = 0;
         int convergeDelay = 0;
-        int method = 1;
+        Router.METHOD method = Router.METHOD.BASIC;
         int detail = Integer.parseInt(args[2]);
         HashMap<Integer,Router> network = new HashMap<>();
         HashMap<Integer,ArrayList<String>> events = new HashMap<>();
@@ -54,18 +55,27 @@ public class Main {
                 events.put(index,eList);
             }
         }
-
+        Scanner scan = new Scanner(System.in);
+        System.out.println("--Routing method--");
+        System.out.println("1. Basic");
+        System.out.println("2. Split horizon");
+        System.out.println("3. Poison Reverse");
+        System.out.print("Select the method[1-3]:");
+        int input = Integer.parseInt(scan.nextLine());
+        switch(input) {
+            case 2:
+                method = Router.METHOD.SPLIT_HORIZONE;
+                break;
+            case 3:
+                method = Router.METHOD.POSION_REVERSE;
+                break;
+            default:
+                method = Router.METHOD.BASIC;
+        }
         int round = 1;
         boolean isConverge = false;
         boolean cti = false;
-        System.out.print("Method used: ");
-        if(method == 1) {
-            System.out.println("Split Horizon");
-        } else if(method == 2){
-            System.out.println("Split Horizon with poison reverse");
-        } else {
-            System.out.println("Basic");
-        }
+        System.out.println("Method used: " + method);
         while(true) {
             boolean flag = true;
             System.out.println("Start Round " + round + ":");
@@ -87,8 +97,8 @@ public class Main {
                 }
             }
             if(detail == 1) {
-                for(Router r: network.values()) {
-                    r.PrintDVTable();
+                for(Router r : network.values()) {
+                    r.PrintDVector();
                 }
             }
 
@@ -129,7 +139,7 @@ public class Main {
             for (Router r : network.values()) {
                 r.UpdateDateDVector();
                 if(detail == 1 ) {
-                    r.PrintDVTable();
+                    r.PrintDVector();
                 }
                 if (!r.IsConverge()) {
                     flag = false;
@@ -142,7 +152,7 @@ public class Main {
         }
         //Print DVTable after finishing
         for(Router r: network.values()) {
-            r.PrintDVTable();
+            r.PrintDVector();
         }
     }
 }

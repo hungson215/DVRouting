@@ -76,6 +76,7 @@ public class DVTable {
     public DVCell GetCell(int rowid, int colid) {
         return  dvtable.get(rowid).get(colid);
     }
+
     public void PrintTable() {
         System.out.println("---------------------------------------------------");
         for(Integer i: dvtable.keySet()) {
@@ -84,41 +85,10 @@ public class DVTable {
     }
     public void PrintDVector(int id) {
         HashMap<Integer,DVCell> dvector = dvtable.get(id);
-        for(Integer i : dvector.keySet()) {
-            System.out.print("   |   " + i + "           ");
-        }
-        System.out.println();
-        for(Integer i : dvector.keySet()) {
-            System.out.print("   | Cost: ");
-            if(dvector.get(i).GetCost() < 0) {
-                System.out.print("INFINITY");
-            } else {
-                System.out.print(dvector.get(i).GetCost());
-                System.out.print("       ");
-            }
-        }
-        System.out.println();
         System.out.print(id);
         for(Integer i : dvector.keySet()) {
-            System.out.print("   | DV: ");
-            if(dvector.get(i).GetDV() < 0) {
-                System.out.print("INFINITY");
-            } else {
-                System.out.print(dvector.get(i).GetDV());
-                System.out.print("       ");
-            }
+            System.out.print("\t" + dvector.get(i).GetNextHop()+","+dvector.get(i).GetHops()+"\t");
         }
         System.out.println();
-        for(Integer i : dvector.keySet()) {
-            System.out.print("   | NextHop: " + dvector.get(i).GetNextHop());
-            System.out.print("    ");
-        }
-        System.out.println();
-        for(Integer i : dvector.keySet()) {
-            System.out.print("   | Hops: "+ dvector.get(i).GetHops());
-            System.out.print("       ");
-        }
-        System.out.println();
-        System.out.println("--------------------------------------------------");
     }
 }

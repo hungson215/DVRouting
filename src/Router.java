@@ -7,6 +7,7 @@ public class Router {
     private ArrayList<Router> adjacentRouter; // Adjacent Routers
     private boolean isConverge;
     private boolean cti;
+    public enum METHOD {BASIC, SPLIT_HORIZONE, POSION_REVERSE}
     /**
      * Constructor
      * @param id
@@ -40,13 +41,30 @@ public class Router {
     /**
      * Advertise Distance Vector to all adjacent Routers
      */
-    public void Advertise(int method) {
+    public void Advertise(METHOD method) {
         HashMap<Integer,DVCell> dvector;
         if(isConverge) {
             return;
         }
-        switch (method) {
-            case 1:
+        if(method == METHOD.BASIC) {
+            for (Router r : adjacentRouter) {
+                r.AddDVector(routerId, dvtable.GetDVector(routerId));
+            }
+        } else {
+            dvector = dvtable.GetDVector(routerId);
+            for(Router r : adjacentRouter) {
+                HashMap<Integer, DVCell> newdvector = new HashMap<>();
+                for (Integer i : dvector.keySet()) {
+                    newdvector.put(i, new DVCell(dvector.get(i)));
+                    if (dvector.get(i).GetNextHop() == r.GetId()) {
+                        newdvector.get(i).SetDV((method == METHOD.SPLIT_HORIZONE)? -2 : -1);
+                    }
+                }
+                r.AddDVector(routerId,newdvector);
+            }
+        }
+       /* switch (method) {
+            case SPLIT_HORIZONE:
                 dvector = dvtable.GetDVector(routerId);
                 for(Router r : adjacentRouter) {
                     HashMap<Integer, DVCell> newdvector = new HashMap<>();
@@ -58,7 +76,7 @@ public class Router {
                     r.AddDVector(routerId,newdvector);
                 }
                 break;
-            case 2:
+            case POSION_REVERSE:
                 dvector = dvtable.GetDVector(routerId);
                 for(Router r : adjacentRouter) {
                     HashMap<Integer, DVCell> newdvector = new HashMap<>();
@@ -75,7 +93,7 @@ public class Router {
                 for (Router r : adjacentRouter) {
                     r.AddDVector(routerId, dvtable.GetDVector(routerId));
                 }
-        }
+        }*/
 
     }
 
@@ -121,10 +139,6 @@ public class Router {
     public DVCell GetCell(int id) {
         return dvtable.GetCell(routerId,id);
     }
-    public void PrintDVTable(){
-        System.out.println("DVTable of Router " + routerId + " :");
-        dvtable.PrintTable();
-    }
     /**
      * Update the DV
      */
@@ -161,19 +175,7 @@ public class Router {
                     }
                     if(nextHop != this) {
                         dvector.get(i).SetNextHop(nextHop.GetId());
-                        int hops = 0;
-                        int id = routerId;
-                        int nid;
-                        while(id != i) {
-                            hops++;
-                            nid = dvtable.GetCell(id,i).GetNextHop();
-                            if(nid != i && id == dvtable.GetCell(nid,i).GetNextHop()) {
-                                hops = -1;
-                                break;
-                            }
-                            id = nid;
-                        }
-                        dvector.get(i).SetHops(hops);
+                        dvector.get(i).SetHops(nextHop.GetCell(i).GetHops() + 1);
                     }
                     isUpdate = true;
                 }
@@ -183,5 +185,11 @@ public class Router {
         if(!isUpdate) {
             isConverge = true;
         }
+    }
+    public void PrintTable(){
+        dvtable.PrintTable();
+    }
+    public void PrintDVector() {
+        dvtable.PrintDVector(routerId);
     }
 }
