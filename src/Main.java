@@ -114,7 +114,7 @@ public class Main {
                     int rid1 = Integer.parseInt(tokens[0]);
                     int rid2 = Integer.parseInt(tokens[1]);
                     int cost = Integer.parseInt(tokens[2]);
-                    System.out.println("New cost: " + rid1 +" -> " +rid2+": " +cost);
+                    System.out.println("New cost: " + rid1 +" -> " +rid2+":" + ((cost < 0) ? "INFINITY" : cost));
                     Router r1 = network.get(rid1);
                     Router r2 = network.get(rid2);
                     //Add new link

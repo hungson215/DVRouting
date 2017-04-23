@@ -89,12 +89,11 @@ public class Router {
         return dvtable.GetCell(routerId,id).GetCost();
     }
     public void SetLinkCost(int id, int cost) {
-        if(cost == -1) {
+        if(cost < 0) {
             dvtable.GetCell(routerId,id).SetNextHop(0);
             dvtable.GetCell(routerId,id).SetHops(0);
-            dvtable.GetCell(routerId,id).SetDV(-1);
         }
-        dvtable.GetCell(routerId,id).SetCost(cost);
+        dvtable.GetCell(routerId,id).SetDV(cost);
         isConverge = false;
     }
     public void RemoveAdjacentRouter(Router r) {
@@ -146,25 +145,9 @@ public class Router {
                 // If the dv cost is different, update it
                 if(dvector.get(i).GetDV() != min) {
                     dvector.get(i).SetDV(min);
+                    dvector.get(i).SetHops(nextHop.GetCell(i).GetHops() + 1);
                     if(dvector.get(i).GetHops() > 100) {
                         cti = true;
-                    }
-                    if(nextHop != this) {
-                        dvector.get(i).SetNextHop(nextHop.GetId());
-                        int hops = 0;
-                        int id = routerId;
-                        int nid;
-                        //Find the hops by tracing the path
-                        while(id != i) {
-                            hops++;
-                            nid = dvtable.GetCell(id,i).GetNextHop();
-                            if(nid != i && id == dvtable.GetCell(nid,i).GetNextHop()) {
-                                hops = -1;
-                                break;
-                            }
-                            id = nid;
-                        }
-                        dvector.get(i).SetHops(hops);
                     }
                     isUpdate = true;
                 }
@@ -174,5 +157,27 @@ public class Router {
         if(!isUpdate) {
             isConverge = true;
         }
+    }
+
+    /**
+     * Tracing the path to get the correct Distance
+     * @param dest
+     * @return
+     */
+    public Integer TracingPath(int dest) {
+        int hops = 0;
+        int id = routerId;
+        int nid;
+        //Find the hops by tracing the path
+        while(id != dest) {
+            hops++;
+            nid = dvtable.GetCell(id,dest).GetNextHop();
+            if(nid != dest && id == dvtable.GetCell(nid,dest).GetNextHop()) {
+                hops = -1;
+                break;
+            }
+            id = nid;
+        }
+        return hops;
     }
 }

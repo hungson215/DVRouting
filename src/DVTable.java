@@ -1,8 +1,5 @@
 import java.util.HashMap;
 
-/**
- * Created by David Nguyen on 4/13/2017.
- */
 public class DVTable {
     private HashMap<Integer,HashMap<Integer,DVCell>> dvtable;
 
@@ -93,14 +90,14 @@ public class DVTable {
         System.out.println();
         System.out.print(id);
         for(Integer i : dvector.keySet()) {
-            System.out.print("\t|\tDV:");
+            System.out.print("\t|\tDistance:");
             if(dvector.get(i).GetDV() == -1) {
                 System.out.print("\tINFINITY\t");
             } else if (dvector.get(i).GetDV() == -2) {
                 System.out.print("\tNaN\t");
             } else {
                 System.out.print(dvector.get(i).GetDV());
-                System.out.print("\t\t");
+                System.out.print("\t");
             }
         }
         System.out.println();
