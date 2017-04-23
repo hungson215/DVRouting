@@ -11,7 +11,7 @@ public class Main {
         String str;
         int totalRouters = 0;
         int convergeDelay = 0;
-        Router.METHOD method = Router.METHOD.BASIC;
+        Router.METHOD method;
         int detail = Integer.parseInt(args[2]);
         HashMap<Integer,Router> network = new HashMap<>();
         HashMap<Integer,ArrayList<String>> events = new HashMap<>();
@@ -64,10 +64,10 @@ public class Main {
         int input = Integer.parseInt(scan.nextLine());
         switch(input) {
             case 2:
-                method = Router.METHOD.SPLIT_HORIZONE;
+                method = Router.METHOD.SPLIT_HORIZON;
                 break;
             case 3:
-                method = Router.METHOD.POSION_REVERSE;
+                method = Router.METHOD.POISON_REVERSE;
                 break;
             default:
                 method = Router.METHOD.BASIC;
