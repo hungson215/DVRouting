@@ -64,51 +64,59 @@ public class DVTable {
     public DVCell GetCell(int rowid, int colid) {
         return  dvtable.get(rowid).get(colid);
     }
-    public void PrintTable() {
+    public void PrintTable(boolean simple) {
         System.out.println("__________________________________________________________");
         for(Integer i: dvtable.keySet()) {
-            PrintDVector(i);
+            PrintDVector(i,simple);
         }
     }
-    public void PrintDVector(int id) {
+    public void PrintDVector(int id, boolean simple) {
         HashMap<Integer,DVCell> dvector = dvtable.get(id);
-        for(Integer i : dvector.keySet()) {
-            System.out.print("\t|\t\t" + i + "\t\t");
-        }
-        System.out.println();
-        for(Integer i : dvector.keySet()) {
-            System.out.print("\t|\tCost:");
-            if(dvector.get(i).GetCost() == -1) {
-                System.out.print("\tINFINITY\t");
-            } else if (dvector .get(i).GetCost() == -2) {
-                System.out.print("\tNaN\t\t");
-            } else {
-                System.out.print(dvector.get(i).GetCost());
-                System.out.print("\t\t");
+        if(simple) {
+            System.out.print(id);
+            for(int  i: dvector.keySet()) {
+                System.out.print("\t" + dvector.get(i).GetNextHop() + "," + dvector.get(i).GetHops() + "\t");
             }
-        }
-        System.out.println();
-        System.out.print(id);
-        for(Integer i : dvector.keySet()) {
-            System.out.print("\t|\tDistance:");
-            if(dvector.get(i).GetDV() == -1) {
-                System.out.print("\tINFINITY\t");
-            } else if (dvector.get(i).GetDV() == -2) {
-                System.out.print("\tNaN\t");
-            } else {
-                System.out.print(dvector.get(i).GetDV());
-                System.out.print("\t");
+                System.out.println();
+        } else {
+            for (Integer i : dvector.keySet()) {
+                System.out.print("\t|\t\t" + i + "\t\t");
             }
+            System.out.println();
+            for (Integer i : dvector.keySet()) {
+                System.out.print("\t|\tCost:");
+                if (dvector.get(i).GetCost() == -1) {
+                    System.out.print("\tINFINITY\t");
+                } else if (dvector.get(i).GetCost() == -2) {
+                    System.out.print("\tNaN\t\t");
+                } else {
+                    System.out.print(dvector.get(i).GetCost());
+                    System.out.print("\t\t");
+                }
+            }
+            System.out.println();
+            System.out.print(id);
+            for (Integer i : dvector.keySet()) {
+                System.out.print("\t|\tDistance:");
+                if (dvector.get(i).GetDV() == -1) {
+                    System.out.print("\tINFINITY\t");
+                } else if (dvector.get(i).GetDV() == -2) {
+                    System.out.print("\tNaN\t");
+                } else {
+                    System.out.print(dvector.get(i).GetDV());
+                    System.out.print("\t");
+                }
+            }
+            System.out.println();
+            for (Integer i : dvector.keySet()) {
+                System.out.print("\t|\tNextHop:" + dvector.get(i).GetNextHop() + "\t");
+            }
+            System.out.println();
+            for (Integer i : dvector.keySet()) {
+                System.out.print("\t|\tHops:\t" + dvector.get(i).GetHops() + "\t");
+            }
+            System.out.println();
+            System.out.println("-----------------------------------------------------------");
         }
-        System.out.println();
-        for(Integer i : dvector.keySet()) {
-            System.out.print("\t|\tNextHop:" + dvector.get(i).GetNextHop()+"\t");
-        }
-        System.out.println();
-        for(Integer i : dvector.keySet()) {
-            System.out.print("\t|\tHops:\t"+ dvector.get(i).GetHops() + "\t");
-        }
-        System.out.println();
-        System.out.println("-----------------------------------------------------------");
     }
 }

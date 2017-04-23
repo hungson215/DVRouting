@@ -108,10 +108,10 @@ public class Router {
     }
     public void PrintDVTable(){
         System.out.println("DVTable of Router " + routerId + " :");
-        dvtable.PrintTable();
+        dvtable.PrintTable(true);
     }
     public void PrintDVector() {
-        dvtable.PrintDVector(routerId);
+        dvtable.PrintDVector(routerId,true);
     }
     /**
      * Update the DV
@@ -145,7 +145,7 @@ public class Router {
                 // If the dv cost is different, update it
                 if(dvector.get(i).GetDV() != min) {
                     dvector.get(i).SetDV(min);
-                    dvector.get(i).SetHops(nextHop.GetCell(i).GetHops() + 1);
+                    dvector.get(i).SetHops((nextHop != this) ? nextHop.GetCell(i).GetHops() + 1 : 0);
                     if(dvector.get(i).GetHops() > 100) {
                         cti = true;
                     }
