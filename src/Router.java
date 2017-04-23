@@ -7,6 +7,7 @@ public class Router {
     private ArrayList<Router> adjacentRouter; // Adjacent Routers
     private boolean isConverge;
     private boolean cti;
+    public enum ROUTING_METHOD {BASIC, SPLIT_HORIZON, POISON_REVERSE}
     /**
      * Constructor
      * @param id
@@ -40,13 +41,13 @@ public class Router {
     /**
      * Advertise Distance Vector to all adjacent Routers
      */
-    public void Advertise(int method) {
+    public void Advertise(ROUTING_METHOD method) {
         HashMap<Integer,DVCell> dvector;
         if(isConverge) {
             return;
         }
         switch (method) {
-            case 1:
+            case SPLIT_HORIZON:
                 dvector = dvtable.GetDVector(routerId);
                 for(Router r : adjacentRouter) {
                     HashMap<Integer, DVCell> newdvector = new HashMap<>();
@@ -58,7 +59,7 @@ public class Router {
                     r.AddDVector(routerId,newdvector);
                 }
                 break;
-            case 2:
+            case POISON_REVERSE:
                 dvector = dvtable.GetDVector(routerId);
                 for(Router r : adjacentRouter) {
                     HashMap<Integer, DVCell> newdvector = new HashMap<>();
@@ -142,21 +143,22 @@ public class Router {
                 Router nextHop = this;
                 int dvcost;
                 for(Router r : adjacentRouter) {
+                    //Calculate the path if the cost is not < 0
                     if(dvector.get(r.GetId()).GetCost() >= 0 &&
                             dvtable.GetCell(r.GetId(),i).GetDV() >= 0) {
                         dvcost = dvector.get(r.GetId()).GetCost() + dvtable.GetCell(r.GetId(), i).GetDV();
                     } else {
-                        dvcost = -1;
+                        dvcost = -1; // otherwise, the the selected path is < 0 (unreachable)
                     }
                     if(min < 0 || (min >= dvcost && dvcost > 0)) {
                         min = dvcost;
                         nextHop = r;
                     }
-                                    }
+                }
                 // If the dv cost is different, update it
                 if(dvector.get(i).GetDV() != min) {
                     dvector.get(i).SetDV(min);
-                    if(min > 100) {
+                    if(dvector.get(i).GetHops() > 100) {
                         cti = true;
                     }
                     if(nextHop != this) {
@@ -164,6 +166,7 @@ public class Router {
                         int hops = 0;
                         int id = routerId;
                         int nid;
+                        //Find the hops by tracing the path
                         while(id != i) {
                             hops++;
                             nid = dvtable.GetCell(id,i).GetNextHop();
@@ -179,7 +182,7 @@ public class Router {
                 }
             }
         }
-        //If nothing change then the DV table is converged
+        //If nothing change then the DV table converges
         if(!isUpdate) {
             isConverge = true;
         }

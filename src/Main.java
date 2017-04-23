@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException{
@@ -10,8 +11,9 @@ public class Main {
         String str;
         int totalRouters = 0;
         int convergeDelay = 0;
-        int method = 1;
+        Router.ROUTING_METHOD method;
         int detail = Integer.parseInt(args[2]);
+        System.out.println("Initialize the network...");
         HashMap<Integer,Router> network = new HashMap<>();
         HashMap<Integer,ArrayList<String>> events = new HashMap<>();
         while((str = f.readLine()) != null) {
@@ -40,6 +42,7 @@ public class Main {
             }
         }
         f.close();
+        System.out.println("Initialize routing events...");
         f = new BufferedReader(new FileReader(args[1]));
         while((str = f.readLine()) != null) {
             int i = str.indexOf(' ');
@@ -54,18 +57,28 @@ public class Main {
                 events.put(index,eList);
             }
         }
+        Scanner scan  = new Scanner(System.in);
+        System.out.println("---Routing method---");
+        System.out.println("1. Basic");
+        System.out.println("2. Split horizon");
+        System.out.println("3. Poison Reverse");
+        System.out.print("Choose the routing method[1-3]:");
+        Integer input = Integer.parseInt(scan.nextLine());
+        switch (input) {
+            case 2:
+                method = Router.ROUTING_METHOD.SPLIT_HORIZON;
+                break;
+            case 3:
+                method = Router.ROUTING_METHOD.POISON_REVERSE;
+                break;
+            default:
+                method = Router.ROUTING_METHOD.BASIC;
+        }
 
         int round = 1;
         boolean isConverge = false;
         boolean cti = false;
-        System.out.print("Method used: ");
-        if(method == 1) {
-            System.out.println("Split Horizon");
-        } else if(method == 2){
-            System.out.println("Split Horizon with poison reverse");
-        } else {
-            System.out.println("Basic");
-        }
+        System.out.print("Method used: " + method);
         while(true) {
             boolean flag = true;
             System.out.println("Start Round " + round + ":");
