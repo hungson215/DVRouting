@@ -155,7 +155,7 @@ public class Main {
         }
         //Print DVTable after finishing
         for(Router r: network.values()) {
-            r.PrintDVTable();
+            r.PrintDVector();
         }
     }
 }

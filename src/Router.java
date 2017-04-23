@@ -46,38 +46,23 @@ public class Router {
         if(isConverge) {
             return;
         }
-        switch (method) {
-            case SPLIT_HORIZON:
-                dvector = dvtable.GetDVector(routerId);
-                for(Router r : adjacentRouter) {
-                    HashMap<Integer, DVCell> newdvector = new HashMap<>();
-                    for (Integer i : dvector.keySet()) {
-                        if (dvector.get(i).GetNextHop() != r.GetId()) {
-                            newdvector.put(i, dvector.get(i));
-                        }
+        if(method == ROUTING_METHOD.BASIC) {
+            for (Router r : adjacentRouter) {
+                r.AddDVector(routerId, dvtable.GetDVector(routerId));
+            }
+        } else {
+            dvector = dvtable.GetDVector(routerId);
+            for (Router r : adjacentRouter) {
+                HashMap<Integer, DVCell> newdvector = new HashMap<>();
+                for (Integer i : dvector.keySet()) {
+                    newdvector.put(i, new DVCell(dvector.get(i)));
+                    if (dvector.get(i).GetNextHop() == r.GetId()) {
+                        newdvector.get(i).SetDV(method == ROUTING_METHOD.SPLIT_HORIZON ? -2 : -1);
                     }
-                    r.AddDVector(routerId,newdvector);
                 }
-                break;
-            case POISON_REVERSE:
-                dvector = dvtable.GetDVector(routerId);
-                for(Router r : adjacentRouter) {
-                    HashMap<Integer, DVCell> newdvector = new HashMap<>();
-                    for (Integer i : dvector.keySet()) {
-                        newdvector.put(i, new DVCell(dvector.get(i)));
-                        if (dvector.get(i).GetNextHop() == r.GetId()) {
-                            newdvector.get(i).SetDV(-1);
-                        }
-                    }
-                    r.AddDVector(routerId,newdvector);
-                }
-                break;
-            default:
-                for (Router r : adjacentRouter) {
-                    r.AddDVector(routerId, dvtable.GetDVector(routerId));
-                }
+                r.AddDVector(routerId, newdvector);
+            }
         }
-
     }
 
     /**
@@ -125,6 +110,9 @@ public class Router {
     public void PrintDVTable(){
         System.out.println("DVTable of Router " + routerId + " :");
         dvtable.PrintTable();
+    }
+    public void PrintDVector() {
+        dvtable.PrintDVector(routerId);
     }
     /**
      * Update the DV
