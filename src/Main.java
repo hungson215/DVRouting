@@ -75,25 +75,27 @@ public class Main {
         int round = 1;
         boolean isConverge = false;
         boolean cti = false;
+        System.out.println("------------------------");
         System.out.println("Method used: " + method);
+        System.out.println("Print table each round: " + ((detail == 1) ? "Yes" : "No"));
+        System.out.println("-------------------------");
         while(true) {
             boolean flag = true;
-            System.out.println("Start Round " + round + ":");
+            System.out.print("Start Round " + round);
             convergeDelay++;
             //If there's no event and the DVTable is converged, stop the program
             if(isConverge && events.isEmpty()) {
-                System.out.println("All events are completed! The routing table is converged");
+                System.out.println(": Table converged");
                 System.out.println("Convergence Delay: " + convergeDelay + " rounds");
                 break;
             } else if(cti){
-                System.out.println("Count To Infinity Problem Encountered");
+                System.out.println(": Count To Infinity Problem Encountered");
                 break;
             }
             //Advertise
             if(!isConverge){
-                System.out.println("Advertise");
                 for (Router r : network.values()) {
-                    r.Advertise(method);
+                    r.Advertise(method, false);
                 }
             }
             if(detail == 1) {
@@ -105,8 +107,8 @@ public class Main {
             //Check for any event
             if(events.containsKey(round)) {
                 convergeDelay = 0;
+                System.out.println(" : EVENT!!");
                 for(String event : events.get(round)) {
-                    System.out.println("EVENT! Cost change happen");
                     String[] tokens = event.split(" ");
                     int rid1 = Integer.parseInt(tokens[0]);
                     int rid2 = Integer.parseInt(tokens[1]);
@@ -122,6 +124,10 @@ public class Main {
                     } else if (cost < 0) {
                         r1.RemoveAdjacentRouter(r2);
                         r2.RemoveAdjacentRouter(r1);
+                        r1.UpdateDateDVector();
+                        r2.UpdateDateDVector();
+                        r1.Advertise(method, true);
+                        r2.Advertise(method, true);
                         //Change link cost
                     } else {
                         r1.SetLinkCost(rid2, cost);
@@ -130,12 +136,11 @@ public class Main {
                 }
                 events.remove(round);
             } else if (isConverge) {
-                System.out.println("Routing table is converged");
+                System.out.println(" : Routing table converged");
                 round++;
                 continue;
             }
             //Update DVTable
-            System.out.println("Update DVTable");
             for (Router r : network.values()) {
                 r.UpdateDateDVector();
                 if(detail == 1 ) {
@@ -149,6 +154,7 @@ public class Main {
             }
             isConverge = flag;
             round++;
+            System.out.println();
         }
         //Print DVTable after finishing
         for(Router r: network.values()) {

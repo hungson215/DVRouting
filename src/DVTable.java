@@ -74,7 +74,11 @@ public class DVTable {
      * @return
      */
     public DVCell GetCell(int rowid, int colid) {
-        return  dvtable.get(rowid).get(colid);
+        if(dvtable.get(rowid) != null) {
+            return dvtable.get(rowid).get(colid);
+        } else {
+            return null;
+        }
     }
 
     public void PrintTable() {

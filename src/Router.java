@@ -43,10 +43,12 @@ public class Router {
     /**
      * Advertise Distance Vector to all adjacent Routers
      */
-    public void Advertise(METHOD method) {
+    public void Advertise(METHOD method, boolean force) {
         this.method = method;
         HashMap<Integer,DVCell> dvector;
-        if(isConverge) {
+        if(force) {
+            isConverge = false;
+        } else if(isConverge) {
             return;
         }
         if(method == METHOD.BASIC) {
@@ -104,8 +106,8 @@ public class Router {
      */
     public void SetLinkCost(int id, int cost) {
         if(cost < 0) {
-            dvtable.GetCell(routerId,id).SetNextHop(0);
-            dvtable.GetCell(routerId,id).SetHops(0);
+            dvtable.GetCell(routerId,id).SetNextHop(-1);
+            dvtable.GetCell(routerId,id).SetHops(-1);
             dvtable.GetCell(routerId,id).SetDV((method == METHOD.SPLIT_HORIZON)? -2 : -1);
         }
         dvtable.GetCell(routerId,id).SetCost(cost);
@@ -119,7 +121,6 @@ public class Router {
     public void RemoveAdjacentRouter(Router r) {
         if(adjacentRouter.contains(r)) {
             adjacentRouter.remove(r);
-            r.SetLinkCost(routerId, (method == METHOD.SPLIT_HORIZON) ? -2 : -1);
             SetLinkCost(r.GetId(), (method == METHOD.SPLIT_HORIZON) ? -2 : -1);
         }
     }
@@ -164,12 +165,15 @@ public class Router {
                 // If the dv cost is different, update it
                 if(dvector.get(i).GetDV() != min) {
                     dvector.get(i).SetDV(min);
-                    if(min > 100) {
+                    if(dvector.get(i).GetHops() > 100) {
                         cti = true;
                     }
                     if(nextHop != this) {
                         dvector.get(i).SetNextHop(nextHop.GetId());
                         dvector.get(i).SetHops(nextHop.GetCell(i).GetHops() + 1);
+                    } else if (nextHop == this) {
+                        dvector.get(i).SetNextHop(-1);
+                        dvector.get(i).SetHops(-1);
                     }
                     isUpdate = true;
                 }
